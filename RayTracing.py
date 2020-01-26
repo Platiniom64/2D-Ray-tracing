@@ -1,9 +1,12 @@
 """
-This program tries to simulate the lightrays that come from a torch in a room.
+This program was written by Vladimir Hanin on the 26/01/2020.
+Python 3.7 was used
+This program simulates the light rays that come from a torch in a room. It shows which areas of the map that are
+visible to the pointer of the mouse. The goal of the program was simply to test the light rays of a torch. 
+A green square is hidden in the maze, but don't cheat; you are not allowed to jump over walls
 """
 
 import tkinter
-
 
 # * creation of the window
 root = tkinter.Tk()
@@ -19,7 +22,7 @@ c.pack()
 listOfRect = []
 class Rectangle(object):
     
-    # * this initiates the variables of the rectangle, it gives each vertex a value
+    # * this function initiates the variables of the rectangle, it gives each vertex a value
     def __init__(self, x1, y1, x2, y2, colour="grey"):
         #these variables are stored for the next funciton, to update the recangle
         self.x1 = x1
@@ -42,6 +45,7 @@ class Rectangle(object):
         #adds it to the list
         listOfRect.append(self)
     
+    # * this function updates the rectangles so that they stay on top of the shadows of the lines
     def updateRec(self):
         #first we remove the previous rectangle
         c.delete(self.shape)
@@ -70,9 +74,12 @@ class Line(object):
         # we begin by adding the two woordinates to the list of coordinates for the polynomial
         coordsPoly = [self.coords[1], self.coords[0]]
 
-        #for each coordinate of the line, we create a coordinate that extends to the end of the window
+        # * for each coordinate of the line, we create a coordinate that extends to the end of the window to then create the polygon
+        # the for loop takes the two end point of the line and get the coordinate of the window comparing that vertex.
         for vertex in self.coords:
+            # this if statement checks if the mouse is on the left of the point
             if mouseX < vertex[0]:
+                #this is the calculation for getting the coordinate at the side of the window
                 gradient = (vertex[1] - mouseY)/(vertex[0] - mouseX)
                 cornerY = gradient * canvasSize- gradient*vertex[0] + vertex[1]
                 cornerX = canvasSize
@@ -84,8 +91,11 @@ class Line(object):
                 cornerX = 0
                 coordsPoly.append((cornerX, cornerY))
 
+            # if the mouse is nor left nor right from the end point of the line, then it must be above or under
             else:
+                # this checks that the mouse is rigth or left compared to the other point of the line
                 if mouseX < self.coords[0][0] or mouseX < self.coords[1][0]:
+                    # then we check if the mouse is under or above
                     if mouseY > self.coords[0][1]:
                         coordsPoly.append((mouseX, 0))
                         coordsPoly.append((canvasSize, 0))
@@ -101,7 +111,8 @@ class Line(object):
                     else:
                         coordsPoly.append((0, canvasSize))
                         coordsPoly.append((mouseX, canvasSize))
-                
+
+                # this means that the line is vertical
                 else:
                     if mouseY > self.coords[0][1]:
                         coordsPoly.append((mouseX, 0))
@@ -119,23 +130,29 @@ class Line(object):
             coordsPoly.insert(3, (0,0))
             coordsPoly.insert(4, (canvasSize,0))
         
-        
+        # with all these coordinates we can now create the polygon
         self.shadow = c.create_polygon(coordsPoly)
 
- 
+"""
+#creates the rectangles rectangle
+rect1 = Rectangle(100, 100, 200, 400, "black")
+rect2 = Rectangle(200, 100, 400, 200, "black")
+rect3 = Rectangle(500, 0, 600, 400, "black")
+rect4 = Rectangle(300, 300, 400, 600, "black")
+rect5 = Rectangle(100, 400, 200, 600, "black")
+rect6 = Rectangle(500, 500, 700, 600, "black")
 
-#creates a grey rectangle
-rectTOP = Rectangle(100, 100, 500, 150)
-rectLEFT = Rectangle(100, 200, 150, 500)
-rectRIGHT = Rectangle(450, 200, 500, 500)
-rectMID = Rectangle(250, 250, 350, 350)
-rectMIDBOT = Rectangle(275, 500, 325, 600)
+""" 
+# This is another map, more meant to play around with the shadows
+rect1 = Rectangle(100, 100, 200, 400)
+rect2 = Rectangle(200, 100, 400, 200)
+rect3 = Rectangle(500, 0, 600, 400)
+rect4 = Rectangle(300, 300, 400, 600)
+rect5 = Rectangle(100, 400, 200, 600)
+rect6 = Rectangle(500, 500, 700, 600)
+
 
 endSquare = c.create_rectangle(40, 540, 60, 560, fill="white", outline="white", activefill="green")
-"""
-Hline = Line(100, 300, 500, 300)
-Vline = Line(300, 100, 300, 500)
-"""
 
 
 # * this function gets the coordinates of the mouse and sends those coordinates to the function placeLines
@@ -143,13 +160,13 @@ def motion(event):
     update(event.x, event.y)
 root.bind('<Motion>', motion)
 
-
 def update(mouseX, mouseY):
+    #each time update is called, we first update the shadows of each line
     for line in listOfLines:
         line.createShadow(mouseX, mouseY)
+    #then we update the rectangles by placing them on top of the shadows
     for rect in listOfRect:
         rect.updateRec()
-
 
 # * start program
 root.mainloop()
