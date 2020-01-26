@@ -4,31 +4,49 @@ This program tries to simulate the lightrays that come from a torch in a room.
 
 import tkinter
 
+
+# * creation of the window
+root = tkinter.Tk()
+root.title("Ray tracing")
+
+canvasSize = 600
+c = tkinter.Canvas(root, width=canvasSize, heigh=canvasSize)
+c.configure(bg="white")
+c.pack()
+
+
 # ! this list collects all the rectangles that are created
 listOfRect = []
 class Rectangle(object):
     
     # * this initiates the variables of the rectangle, it gives each vertex a value
-    def __init__(self, x1, y1, x2, y2):
-        # top left coordinates
-        self.topLx = x1
-        self.topLy = y1
-        # top right coordinates
-        self.topRx = x2
-        self.topRy = y1
+    def __init__(self, x1, y1, x2, y2, colour="grey"):
+        self.x1 = x1
+        self.y1 = y1
 
-        #bottom right
-        self.botRx = x2
-        self.botRy = y2
-        #bottom left
-        self.botLx = x1
-        self.botLy = y2
+        self.x2 = x2
+        self.y2 = y2
+
+        self.colour = colour
+
+        # top and bottom lines
+        Line(x1, y1, x2, y1)
+        Line(x1, y2, x2, y2)
+
+        #left and right lines
+        Line(x1, y1, x1, y2)
+        Line(x2,y1, x2, y2)
 
         #creates the rectangle
-        c.create_rectangle(x1, y1, x2, y2, outline="grey", fill="grey")
+        self.shape = c.create_rectangle(x1, y1, x2, y2, fill=colour)
 
         #adds it to the list
         listOfRect.append(self)
+    
+    def updateRec(self):
+        c.delete(self.shape)
+        self.shape = c.create_rectangle(self.x1, self.y1, self.x2, self.y2, fill=self.colour)
+
 
 # ! this list collects all the lines that are created
 listOfLines = []
@@ -52,44 +70,49 @@ class Line(object):
 
         for vertex in self.coords:
             if mouseX <= vertex[0]:
-                gradient = (vertex[1] - mouseY)/(vertex[0] - mouseX)
-                cornerY = gradient * canvasSize * 2- gradient*vertex[0] + vertex[1]
-                cornerX = canvasSize*2
+                try:
+                    gradient = (vertex[1] - mouseY)/(vertex[0] - mouseX)
+                except:
+                    gradient = 999999999999999
+                cornerY = gradient * canvasSize- gradient*vertex[0] + vertex[1]
+                cornerX = canvasSize
                 coordsPoly.append((cornerX, cornerY))
 
             else:
-                gradient = (vertex[1] - mouseY)/(vertex[0] - mouseX)
-                cornerY = gradient * (-canvasSize*2) - gradient*vertex[0] + vertex[1]
-                cornerX = -canvasSize * 2
+                try:
+                    gradient = (vertex[1] - mouseY)/(vertex[0] - mouseX)
+                except:
+                    gradient = 999999999999999
+                cornerY = gradient * 0- gradient*vertex[0] + vertex[1]
+                cornerX = 0
                 coordsPoly.append((cornerX, cornerY))
+        
 
+        if coordsPoly[2][0] == 0 and coordsPoly[3][0] == canvasSize and mouseY <= self.coords[1][1]:
+            coordsPoly.insert(3, (0,canvasSize))
+            coordsPoly.insert(4, (canvasSize,canvasSize))
+            
+        if coordsPoly[2][0] == 0 and coordsPoly[3][0] == canvasSize and mouseY >= self.coords[1][1]:
+            coordsPoly.insert(3, (0,0))
+            coordsPoly.insert(4, (canvasSize,0))
 
         self.shadow = c.create_polygon(coordsPoly)
 
 
 
 
-
-
-# * creation of the window
-root = tkinter.Tk()
-root.title("Ray tracing")
-
-canvasSize = 600
-c = tkinter.Canvas(root, width=canvasSize, heigh=canvasSize)
-c.configure(bg="white")
-c.pack()
-
 #creates a grey rectangle
-"""
-rectTOP = Rectangle(100, 75, 500, 125)
-rectLEFT = Rectangle(100, 250, 150, 500)
-rectRIGHT = Rectangle(450, 250, 500, 500)
-"""
 
-Line(200, 100, 200, 300)
-Line(400, 100, 400, 300)
-Line(100, 300, 400, 500)
+rectTOP = Rectangle(100, 100, 500, 150)
+rectLEFT = Rectangle(100, 200, 150, 500)
+rectRIGHT = Rectangle(450, 200, 500, 500)
+rectMID = Rectangle(250, 250, 350, 350)
+rectMIDBOT = Rectangle(275, 500, 325, 600)
+
+endSquare = c.create_rectangle(40, 540, 60, 560, fill="white", outline="white", activefill="green")
+
+
+
 
 # * this function gets the coordinates of the mouse and sends those coordinates to the function placeLines
 def motion(event):
@@ -100,12 +123,9 @@ root.bind('<Motion>', motion)
 def update(mouseX, mouseY):
     for line in listOfLines:
         line.createShadow(mouseX, mouseY)
+    for rect in listOfRect:
+        rect.updateRec()
 
-"""
-listCoords = [(listOfRect[0].botLx, listOfRect[0].botLy), (listOfRect[0].botRx, listOfRect[0].botRy), 
-                 (listOfRect[2].topLx, listOfRect[2].topLy), (listOfRect[2].botLx, listOfRect[2].botLy),
-                 (listOfRect[1].botRx, listOfRect[1].botRy), (listOfRect[1].topLx, listOfRect[1].topLy), (listOfRect[1].topRx, listOfRect[1].topRy)]
-listCoords.sort()
-"""
+
 # * start program
 root.mainloop()
