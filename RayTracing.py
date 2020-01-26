@@ -19,7 +19,7 @@ class Rectangle(object):
 
         #bottom right
         self.botRx = x2
-        self.BotRy = y2
+        self.botRy = y2
         #bottom left
         self.botLx = x1
         self.botLy = y2
@@ -44,6 +44,18 @@ class Line(object):
 
         listOfLines.append(self)
 
+def getRectCoords(mouseX, mouseY):
+
+    listOfCoords = []
+
+    for rect in listOfRect:
+        if rect.topLx <= mouseX and rect.topLy <= mouseY:
+            listOfCoords.append(rect.topLx, rect.topLy)
+
+    return listOfCoords
+
+
+
 
 # * creation of the window
 root = tkinter.Tk()
@@ -54,6 +66,7 @@ c.configure(bg="black")
 c.pack()
 
 #creates a grey rectangle
+
 rectTOP = Rectangle(100, 75, 500, 125)
 rectLEFT = Rectangle(100, 250, 150, 500)
 rectRIGHT = Rectangle(450, 250, 500, 500)
@@ -67,15 +80,15 @@ root.bind('<Motion>', motion)
 
 def placeLines(mouseX, mouseY):
 
+    getRectCoords(mouseX, mouseY)
 
-    for line in listOfLines:
-        c.delete(line.shape)
-        listOfLines.remove(line)
-
-    
-    for rectangle in listOfRect:
-        Line(mouseX, mouseY, rectangle.topLx, rectangle.topLy)
-
+ 
+listCoords = [(listOfRect[0].botLx, listOfRect[0].botLy), (listOfRect[0].botRx, listOfRect[0].botRy), 
+                 (listOfRect[2].topLx, listOfRect[2].topLy), (listOfRect[2].botLx, listOfRect[2].botLy),
+                 (listOfRect[1].botRx, listOfRect[1].botRy), (listOfRect[1].topLx, listOfRect[1].topLy), (listOfRect[1].topRx, listOfRect[1].topRy)]
+listCoords.sort()
 
 # * start program
+c.create_polygon(listCoords,
+                 fill="white")
 root.mainloop()
