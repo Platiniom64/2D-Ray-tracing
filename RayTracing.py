@@ -133,7 +133,7 @@ class Line(object):
         # with all these coordinates we can now create the polygon
         self.shadow = c.create_polygon(coordsPoly)
 
-"""
+
 #creates the rectangles rectangle
 rect1 = Rectangle(100, 100, 200, 400, "black")
 rect2 = Rectangle(200, 100, 400, 200, "black")
@@ -144,13 +144,12 @@ rect6 = Rectangle(500, 500, 700, 600, "black")
 
 """ 
 # This is another map, more meant to play around with the shadows
-rect1 = Rectangle(100, 100, 200, 400)
-rect2 = Rectangle(200, 100, 400, 200)
-rect3 = Rectangle(500, 0, 600, 400)
-rect4 = Rectangle(300, 300, 400, 600)
-rect5 = Rectangle(100, 400, 200, 600)
-rect6 = Rectangle(500, 500, 700, 600)
-
+rectTOP = Rectangle(100, 100, 600, 150)
+rectLEFT = Rectangle(100, 200, 150, 500)
+rectRIGHT = Rectangle(500, 250, 550, 600)
+rectMID = Rectangle(300, 300, 400, 400)
+rectMIDBOT = Rectangle(275, 500, 325, 700)
+"""
 
 endSquare = c.create_rectangle(40, 540, 60, 560, fill="white", outline="white", activefill="green")
 
